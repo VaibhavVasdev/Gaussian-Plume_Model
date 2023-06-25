@@ -1,0 +1,103 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Contaminant parameters (zinc):
+grav = 9.8           # gravitational acceleration (m/s^2)
+mu = 1.8e-5          # dynamic viscosity of air (kg/m.s)
+rho = 7140           # density of zinc (kg/m^3)
+R = 0.45e-6          # diameter of zinc particles (m). See Gatz (1975)
+Wdep = 0.0062        # Zn deposition velocity (m/s), in the range [5e-4,1e-2]
+Wset = 2 * rho * grav * R**2 / (9 * mu)  # settling velocity (m/s): Stokes law
+Mzn = 65.4e-3        # molar mass of zinc (kg/mol)
+
+# Other parameters:
+dia = 0.162          # receptor diameter (m)
+A = np.pi * (dia/2)**2  # receptor area (m^2)
+
+# Stack emission source data:
+source = {}
+source['n'] = 4                        # # of sources
+source['x'] = np.array([288, 308, 900, 1093])  # x-location (m)
+source['y'] = np.array([77, 207, 293, 186])     # y-location (m)
+source['z'] = np.array([15, 35, 15, 15])         # height (m)
+source['label'] = [' S1', ' S2', ' S3', ' S4']
+tpy2kgps = 1.0 / 31536                 # conversion factor (tonne/yr to kg/s)
+source['Q'] = np.array([35, 80, 5, 5]) * tpy2kgps  # emission rate (kg/s)
+
+# Set locations of receptors where deposition measurements are made:
+recept = {}
+recept['n'] = 9                                                    # # of receptors
+recept['x'] = np.array([60, 76, 267, 331, 514, 904, 1288, 1254, 972])  # x location (m)
+recept['y'] = np.array([130, 70, -21, 308, 182, 75, 116, 383, 507])   # y location (m)
+recept['z'] = np.array([0, 10, 10, 1, 15, 2, 3, 12, 12])               # height (m)
+recept['label'] = [' R1 ', ' R2 ', ' R3 ', ' R4 ', ' R5 ', ' R6 ',
+                   ' R7 ', ' R8 ', ' R9 ']
+
+def gplume(x, y, z, H, Q, U):
+    # GPLUME: Compute contaminant concentration (kg/m^3) at a given
+    # set of receptor locations using the standard Gaussian plume
+    # solution. This code handles a single source (located at the
+    # origin) and multiple receptors.
+
+    # First, define the cut-off velocity, below which concentration = 0.
+    Umin = 0.0
+
+    # Determine the sigma coefficients based on stability class C --
+    # slightly unstable (3-5 m/s).
+    ay = 0.34
+    by = 0.82
+    az = 0.275
+    bz = 0.82
+    sigmay = ay * np.abs(x)**by * (x > 0)
+    sigmaz = az * np.abs(x)**bz * (x > 0)
+
+    # Calculate the contaminant concentration (kg/m^3) using Ermak's formula.
+    if U < Umin:
+        C = np.zeros_like(z)
+    else:
+        C = Q / (2 * np.pi * U * sigmay * sigmaz) * np.exp(-0.5 * y**2 / sigmay**2) * (
+                np.exp(-0.5 * (z - H)**2 / sigmaz**2) + np.exp(-0.5 * (z + H)**2 / sigmaz**2))
+        C[np.isnan(C) | np.isinf(C)] = 0  # Set all NaN or inf values to zero.
+    return C
+
+
+def forward_atmospheric_dispersion(Uwind):
+    # Set plotting parameters.
+    nx = 100
+    ny = nx
+    xlim = [0, 2000]
+    ylim = [-100, 400]
+    x0 = np.linspace(xlim[0], xlim[1], nx + 1)[:-1]  # distance along wind direction (m)
+    y0 = np.linspace(ylim[0], ylim[1], ny + 1)[:-1]  # cross-wind distance (m)
+    xmesh, ymesh = np.meshgrid(x0, y0)  # mesh points for contour plot
+    smallfont = 14
+
+    glc = 0
+    for i in range(source['n']):
+        # Sum up ground-level Zn concentrations from each source at all mesh points,
+        # shifting the (x,y) coordinates so the source location is at the origin.
+        glc += gplume(xmesh - source['x'][i], ymesh - source['y'][i], 0.0,
+                      source['z'][i], source['Q'][i], Uwind)
+
+    # Plot contours of ground-level Zn concentration.
+    clist = [0.001, 0.01, 0.02, 0.05, 0.1]
+    glc2 = glc * 1e6  # convert concentration to mg/m^3
+    plt.figure(1)
+    plt.contourf(xmesh, ymesh, glc2, levels=clist)
+    plt.colorbar()
+    plt.xlim(xlim)
+    plt.ylim(ylim)
+    plt.xlabel('x (m)')
+    plt.ylabel('y (m)')
+    plt.title(f'Zn concentration (mg/m^3), max = {np.max(glc2):.2f}')
+
+    # Draw and label the source locations.
+    plt.plot(source['x'], source['y'], 'ro', markeredgecolor='k', markerfacecolor='r')
+    for i, label in enumerate(source['label']):
+        plt.text(source['x'][i], source['y'][i], label, fontsize=smallfont, fontweight='bold')
+
+    plt.grid(True)
+    plt.show()
+
+
+forward_atmospheric_dispersion(Uwind=5)
