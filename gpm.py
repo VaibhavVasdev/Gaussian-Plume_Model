@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from API_Access import get_measurement_data
 
 # Contaminant parameters (PM2.5):
 grav = 9.8           # gravitational acceleration (m/s^2)
@@ -23,14 +24,28 @@ source['label'] = [' S1', ' S2', ' S3', ' S4']
 tpy2kgps = 1.0 / 31536                 # conversion factor (tonne/yr to kg/s)
 source['Q'] = np.array([35, 80, 5, 5]) * tpy2kgps  # emission rate (kg/s)
 
-# Set locations of receptors where deposition measurements are made:
+# Call the function to get the measurement data from OpenAQ API
+measurement_data = get_measurement_data()
+
+# Process the collected measurement data as needed
 recept = {}
-recept['n'] = 9                                                    # # of receptors
-recept['x'] = np.array([60, 76, 267, 331, 514, 904, 1288, 1254, 972])  # x location (m)
-recept['y'] = np.array([130, 70, -21, 308, 182, 75, 116, 383, 507])   # y location (m)
-recept['z'] = np.array([0, 10, 10, 1, 15, 2, 3, 12, 12])               # height (m)
-recept['label'] = [' R1 ', ' R2 ', ' R3 ', ' R4 ', ' R5 ', ' R6 ',
-                   ' R7 ', ' R8 ', ' R9 ']
+recept['n'] = len(measurement_data)  # Number of receptors
+recept['x'] = np.zeros(recept['n'])
+recept['y'] = np.zeros(recept['n'])
+recept['z'] = np.zeros(recept['n'])
+recept['label'] = []
+
+for i, data in enumerate(measurement_data):
+    # Extract relevant information from the OpenAQ API response
+    measurements = data['results']
+    if len(measurements) > 0:
+        # Use the first measurement data for the receptor location
+        measurement = measurements[0]
+        if 'parameters' in measurement:
+            parameters = measurement['parameters']
+            if len(parameters) > 0:
+                recept['z'][i] = parameters[0]['value']
+                recept['label'].append(measurement['location'])
 
 def gplume(x, y, z, H, Q, U):
     # GPLUME: Compute contaminant concentration (kg/m^3) at a given
