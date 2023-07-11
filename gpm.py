@@ -29,7 +29,7 @@ measurement_data = get_measurement_data()
 
 # Process the collected measurement data as needed
 recept = {}
-recept['n'] = len(measurement_data)  # Number of receptors
+recept['n'] = len(measurement_data)  # Number of receptors based on location_ids
 recept['x'] = np.zeros(recept['n'])
 recept['y'] = np.zeros(recept['n'])
 recept['z'] = np.zeros(recept['n'])
@@ -37,15 +37,16 @@ recept['label'] = []
 
 for i, data in enumerate(measurement_data):
     # Extract relevant information from the OpenAQ API response
-    measurements = data['results']
-    if len(measurements) > 0:
+    results = data['results']
+    if len(results) > 0:
         # Use the first measurement data for the receptor location
-        measurement = measurements[0]
-        if 'parameters' in measurement:
-            parameters = measurement['parameters']
-            if len(parameters) > 0:
-                recept['z'][i] = parameters[0]['value']
-                recept['label'].append(measurement['location'])
+        measurement = results[0]
+        latitude = measurement['coordinates']['latitude']
+        longitude = measurement['coordinates']['longitude']
+        recept['x'][i] = longitude
+        recept['y'][i] = latitude
+        recept['z'][i] = 0  # Assuming receptors are at ground level
+        recept['label'].append(measurement['location'])
 
 def gplume(x, y, z, H, Q, U):
     # GPLUME: Compute contaminant concentration (kg/m^3) at a given
@@ -101,14 +102,14 @@ def forward_atmospheric_dispersion(Uwind):
     plt.colorbar()
     plt.xlim(xlim)
     plt.ylim(ylim)
-    plt.xlabel('x (m)')
-    plt.ylabel('y (m)')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
     plt.title(f'PM2.5 concentration (μg/m^3), max = {np.max(glc2):.2f}')
 
-    # Draw and label the source locations.
-    plt.plot(source['x'], source['y'], 'ro', markeredgecolor='k', markerfacecolor='r')
-    for i, label in enumerate(source['label']):
-        plt.text(source['x'][i], source['y'][i], label, fontsize=smallfont, fontweight='bold')
+    # Draw and label the receptor locations.
+    plt.plot(recept['x'], recept['y'], 'bo', markeredgecolor='k', markerfacecolor='b')
+    for i, label in enumerate(recept['label']):
+        plt.text(recept['x'][i], recept['y'][i], label, fontsize=smallfont, fontweight='bold')
 
     plt.grid(True)
     plt.show()
