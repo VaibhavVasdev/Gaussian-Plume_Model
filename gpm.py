@@ -1,7 +1,28 @@
 import numpy as np
-import folium
-from folium import plugins
+import matplotlib.pyplot as plt
 from API_Access import get_measurement_data
+
+# Contaminant parameters (PM2.5):
+grav = 9.8           # gravitational acceleration (m/s^2)
+mu = 1.8e-5          # dynamic viscosity of air (kg/m.s)
+rho = 1000           # density of PM2.5 (kg/m^3)
+R = 1e-6             # diameter of PM2.5 particles (m)
+Wdep = 0.0062        # PM2.5 deposition velocity (m/s), in the range [5e-4,1e-2]
+Wset = 2 * rho * grav * R**2 / (9 * mu)  # settling velocity (m/s): Stokes law
+
+# Other parameters:
+dia = 0.162          # receptor diameter (m)
+A = np.pi * (dia/2)**2  # receptor area (m^2)
+
+# Stack emission source data:
+source = {}
+source['n'] = 4                        # # of sources
+source['x'] = np.array([285, 310, 900, 1095])  # x-location (m)
+source['y'] = np.array([80, 205, 290, 190])     # y-location (m)
+source['z'] = np.array([15, 35, 15, 15])         # height (m)
+source['label'] = [' S1', ' S2', ' S3', ' S4']
+tpy2kgps = 1.0 / 31536                 # conversion factor (tonne/yr to kg/s)
+source['Q'] = np.array([35, 80, 5, 5]) * tpy2kgps  # emission rate (kg/s)
 
 # Call the function to get the measurement data from OpenAQ API
 measurement_data = get_measurement_data()
@@ -27,32 +48,71 @@ for i, data in enumerate(measurement_data):
         recept['z'][i] = 0  # Assuming receptors are at ground level
         recept['label'].append(measurement['location'])
 
-# Receptor array analysis
-def receptor_array_analysis(receptor_locations):
-    # Calculate the centroid of the receptor array
-    centroid = np.mean(receptor_locations, axis=0)
+def gplume(x, y, z, H, Q, U):
+    # GPLUME: Compute contaminant concentration (kg/m^3) at a given
+    # set of receptor locations using the standard Gaussian plume
+    # solution. This code handles a single source (located at the
+    # origin) and multiple receptors.
 
-    # Determine the distance of each receptor from the centroid
-    distances = np.linalg.norm(receptor_locations - centroid, axis=1)
+    # First, define the cut-off velocity, below which concentration = 0.
+    Umin = 0.0
 
-    # Identify the receptor closest to the centroid as the estimated source location
-    estimated_source_location = receptor_locations[np.argmin(distances)]
+    # Determine the sigma coefficients based on stability class C --
+    # slightly unstable (3-5 m/s).
+    ay = 0.34
+    by = 0.82
+    az = 0.275
+    bz = 0.82
+    sigmay = ay * np.abs(x)**by * (x > 0)
+    sigmaz = az * np.abs(x)**bz * (x > 0)
 
-    return estimated_source_location
+    # Calculate the contaminant concentration (kg/m^3) using Ermak's formula.
+    if U < Umin:
+        C = np.zeros_like(z)
+    else:
+        C = Q / (2 * np.pi * U * sigmay * sigmaz) * np.exp(-0.5 * y**2 / sigmay**2) * (
+                np.exp(-0.5 * (z - H)**2 / sigmaz**2) + np.exp(-0.5 * (z + H)**2 / sigmaz**2))
+        C[np.isnan(C) | np.isinf(C)] = 0  # Set all NaN or inf values to zero.
+    return C
 
-# Estimate the source location using receptor array analysis
-estimated_source_location = receptor_array_analysis(np.column_stack((recept['x'], recept['y'])))
 
-# Create a map object using folium
-m = folium.Map(location=[recept['y'].mean(), recept['x'].mean()], zoom_start=10)
+def forward_atmospheric_dispersion(Uwind):
+    # Set plotting parameters.
+    nx = 100
+    ny = nx
+    xlim = [0, 2000]
+    ylim = [-100, 400]
+    x0 = np.linspace(xlim[0], xlim[1], nx + 1)[:-1]  # distance along wind direction (m)
+    y0 = np.linspace(ylim[0], ylim[1], ny + 1)[:-1]  # cross-wind distance (m)
+    xmesh, ymesh = np.meshgrid(x0, y0)  # mesh points for contour plot
+    smallfont = 14
 
-# Add markers for receptor locations
-for i in range(recept['n']):
-    folium.Marker([recept['y'][i], recept['x'][i]], popup=recept['label'][i]).add_to(m)
+    glc = 0
+    for i in range(source['n']):
+        # Sum up ground-level PM2.5 concentrations from each source at all mesh points,
+        # shifting the (x,y) coordinates so the source location is at the origin.
+        glc += gplume(xmesh - source['x'][i], ymesh - source['y'][i], 0.0,
+                      source['z'][i], source['Q'][i], Uwind)
 
-# Add a marker for the estimated source location
-folium.Marker([estimated_source_location[1], estimated_source_location[0]], 
-              popup='Estimated Source', icon=folium.Icon(color='red')).add_to(m)
+    # Plot contours of ground-level PM2.5 concentration.
+    clist = [0.001, 0.01, 0.02, 0.05, 0.1]
+    glc2 = glc * 1e6  # convert concentration to μg/m^3
+    plt.figure(1)
+    plt.contourf(xmesh, ymesh, glc2, levels=clist)
+    plt.colorbar()
+    plt.xlim(xlim)
+    plt.ylim(ylim)
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.title(f'PM2.5 concentration (μg/m^3), max = {np.max(glc2):.2f}')
 
-# Save the map as an HTML file
-m.save('map.html')
+    # Draw and label the receptor locations.
+    plt.plot(recept['x'], recept['y'], 'bo', markeredgecolor='k', markerfacecolor='b')
+    for i, label in enumerate(recept['label']):
+        plt.text(recept['x'][i], recept['y'][i], label, fontsize=smallfont, fontweight='bold')
+
+    plt.grid(True)
+    plt.show()
+
+
+forward_atmospheric_dispersion(Uwind=5)
