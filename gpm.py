@@ -87,10 +87,9 @@ def forward_atmospheric_dispersion(Uwind):
     xmesh, ymesh = np.meshgrid(x0, y0)  # mesh points for contour plot
     smallfont = 14
 
-    glc = 0
+    glc = np.zeros((ny, nx))
     for i in range(source['n']):
-        # Sum up ground-level PM2.5 concentrations from each source at all mesh points,
-        # shifting the (x,y) coordinates so the source location is at the origin.
+        # Calculate the ground-level PM2.5 concentrations from each source at all mesh points.
         glc += gplume(xmesh - source['x'][i], ymesh - source['y'][i], 0.0,
                       source['z'][i], source['Q'][i], Uwind)
 
