@@ -1,13 +1,20 @@
 import requests
+from datetime import datetime, timedelta
 
 def get_measurement_data():
     # Manually enter the parameters
     location_ids = ["", ""]  # Enter as many receptor Ids with "," as a delimiter
-    date_from = "2023-07-05T18:34:03-01:00"  # Change it as per the requirements
-    date_to = "2023-07-06T18:34:03-01:00"  # Change it as per the requirements
+    
+    # Set the date_from and date_to variables
+    date_to = datetime.now()
+    date_from = date_to - timedelta(hours=1)
+    
+    # Format the date strings
+    date_to_str = date_to.isoformat()
+    date_from_str = date_from.isoformat()
 
     # Enter your OpenAQ API key
-    api_key = ""
+    api_key = " "
 
     # Initialize an empty list to store the data
     measurement_data = []
@@ -15,7 +22,7 @@ def get_measurement_data():
     # Iterate over the location IDs
     for location_id in location_ids:
         # Build the URL with the provided parameters
-        url = f"https://api.openaq.org/v2/measurements?location_id={location_id}&parameter=pm25&date_from={date_from}&date_to={date_to}&limit=10000"
+        url = f"https://api.openaq.org/v2/measurements?location_id={location_id}&parameter=pm25&date_from={date_from_str}&date_to={date_to_str}&limit=10000"
 
         # Set the Authorization header with the API key
         headers = {"Authorization": f"Bearer {api_key}"}
