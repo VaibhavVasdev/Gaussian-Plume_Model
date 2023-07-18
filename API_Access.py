@@ -25,7 +25,7 @@ def get_measurement_data():
         url = f"https://api.openaq.org/v2/measurements?location_id={location_id}&parameter=pm25&date_from={date_from_str}&date_to={date_to_str}&limit=10000"
 
         # Set the Authorization header with the API key
-        headers = {"Authorization": f"Bearer {api_key}"}
+        headers = {"X-API-Key": api_key}
 
         # Send the GET request to the OpenAQ API
         res = requests.get(url, headers=headers)
