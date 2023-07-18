@@ -15,6 +15,7 @@ def get_measurement_data():
 
     # Enter your OpenAQ API key
     api_key = " "
+    api_key = api_key.strip()
 
     # Initialize an empty list to store the data
     measurement_data = []
