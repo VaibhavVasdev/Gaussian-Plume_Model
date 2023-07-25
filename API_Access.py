@@ -1,21 +1,21 @@
 import requests
 from datetime import datetime, timedelta
+from DateTimeMechanism import smallest_date, location_ID, api_key_1
 
 def get_measurement_data():
     # Manually enter the parameters
-    location_ids = ["", ""]  # Enter as many receptor Ids with "," as a delimiter
+    location_ids = location_ID  # Enter as many receptor Ids with "," as a delimiter
     
     # Set the date_from and date_to variables
-    date_to = datetime.now()
-    date_from = date_to - timedelta(hours=1)
+    date_to = datetime.fromisoformat(smallest_date)
+    date_from = date_to - timedelta(hours=24)
     
     # Format the date strings
     date_to_str = date_to.isoformat()
     date_from_str = date_from.isoformat()
 
     # Enter your OpenAQ API key
-    api_key = " "
-    api_key = api_key.strip()
+    api_key = api_key_1
 
     # Initialize an empty list to store the data
     measurement_data = []
@@ -68,3 +68,5 @@ for data in measurement_data:
                 'value': value,
                 'unit': unit
             })
+            
+print(measurement_data)

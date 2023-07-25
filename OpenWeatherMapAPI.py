@@ -1,9 +1,10 @@
 import requests
 from API_Access import stored_results
+from DateTimeMechanism import api_key
 
-def get_city_name(latitude, longitude, api_key):
+def get_city_name(latitude, longitude, api_key_2):
     # API endpoint for reverse geocoding
-    url = f'http://api.openweathermap.org/geo/1.0/reverse?lat={latitude}&lon={longitude}&appid={api_key}'
+    url = f'http://api.openweathermap.org/geo/1.0/reverse?lat={latitude}&lon={longitude}&appid={api_key_2}'
 
     # Send request to the API
     response = requests.get(url)
@@ -18,9 +19,9 @@ def get_city_name(latitude, longitude, api_key):
         print(f"Failed to retrieve city name for coordinates ({latitude}, {longitude}).")
         return None
 
-def get_weather_data(city_name, api_key):
+def get_weather_data(city_name, api_key_2):
     # API endpoint for weather data
-    url = f'http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}'
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key_2}'
 
     # Send request to the API
     response = requests.get(url)
@@ -35,7 +36,7 @@ def get_weather_data(city_name, api_key):
         return None
 
 # Example usage
-api_key =  " "  # Replace with your OpenWeatherMap API key
+api_key_2 =  api_key  # Replace with your OpenWeatherMap API key
 
 # Iterate over the stored_results and get weather data for each location
 weather_data = []
@@ -44,10 +45,10 @@ for location in stored_results:
     longitude = location['longitude']
 
     # Get city name based on latitude and longitude
-    city_name = get_city_name(latitude, longitude, api_key)
+    city_name = get_city_name(latitude, longitude, api_key_2)
     if city_name:
         # Get weather data based on city name
-        data = get_weather_data(city_name, api_key)
+        data = get_weather_data(city_name, api_key_2)
         if data:
             weather_data.append(data)
 
@@ -66,16 +67,6 @@ if len(weather_data) > 0:
             'direction': wind_direction
         }
         wind_data.append(wind_info)
-else:
-    # Assign static values for wind speed and wind direction
-    static_speed = 10  # Set the desired static wind speed
-    static_direction = 180  # Set the desired static wind direction
-
-    wind_info = {
-        'speed': static_speed,
-        'direction': static_direction
-    }
-    wind_data.append(wind_info)
 
 # Example access of wind data for a specific location
 if len(wind_data) > 0:

@@ -76,9 +76,16 @@ def forward_atmospheric_dispersion(Uwind):
 
     clist = [0.001, 0.01, 0.02, 0.05, 0.1]
     glc2 = glc * 1e6
+
     plt.figure(1)
-    plt.contourf(xmesh, ymesh, glc2, levels=clist)
-    plt.colorbar()
+
+    # Define a colormap using primary colors (red, green, blue)
+    cmap = plt.cm.get_cmap('tab10')  
+
+    # Create colored contour lines
+    cs = plt.contour(xmesh, ymesh, glc2, levels=clist, cmap=cmap, extend='both')
+    plt.clabel(cs, inline=True, fontsize=8, colors='k')  # Add labels to colored contour lines
+
     plt.xlim(xlim)
     plt.ylim(ylim)
     plt.xlabel('Longitude')
@@ -99,3 +106,4 @@ if len(wind_data) > 0:
         forward_atmospheric_dispersion(Uwind=speed)
 else:
     print("Failed to retrieve wind data. Please check your API key or network connection.")
+    
