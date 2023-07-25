@@ -4,10 +4,10 @@ import dateutil.parser
 from dateutil import tz
 
 # Enter location Ids
-location_ID = ["62543", "8118"]
+location_ID = ["", ""]
 
 # Enter your OpenAQ API key
-api_Key = "de74a6abd9e7b7bc774ebba2ac998902db6bf85ba45d57da4df7f97afd7a2302"
+api_Key = " "
 api_key_1 = api_Key.strip()
 
 # Initialize lists to store longitude and latitude for each location
@@ -109,7 +109,7 @@ def get_weather_data(latitude, longitude, api_key):
         return None
 
 # Example usage
-api_key = "5c8f85cf6fedfff9a436b78a32060f40"  # Replace with your OpenWeatherMap API key
+api_key = " "  # Replace with your OpenWeatherMap API key
 
 # Get weather data based on latitude and longitude
 weather_data = get_weather_data(latitudes[0], longitudes[0], api_key)
