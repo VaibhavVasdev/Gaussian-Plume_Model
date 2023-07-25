@@ -33,7 +33,7 @@ To use this code, follow these steps:
 
 1. Ensure that the required dependencies (`numpy` and `matplotlib`) are installed, alongside you have genereated your API keys for both "OpenAQ" and "openweathermap".
 
-2. Modify the contaminant parameters, source data, and receptor data according to your specific scenario i.e in "DateTimeMechanism.py" input location_ids in line 7 & OpenAQ API Key in line 10 & "OpenWeatherMapAPI.py" input your API key in line 112.
+2. Modify the contaminant parameters, source data, and receptor data according to your specific scenario i.e in "DateTimeMechanism.py" input location_ids in line 7 & OpenAQ API Key in line 10 & OpenWeatherMap APIin line 112.
 
 3. Open the `gpm.py` file in a Python environment (e.g., Jupyter Notebook, Python IDE, or command line) & run the file.
 
