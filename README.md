@@ -33,15 +33,12 @@ To use this code, follow these steps:
 
 1. Ensure that the required dependencies (`numpy` and `matplotlib`) are installed, alongside you have genereated your API keys for both "OpenAQ" and "openweathermap".
 
-2. Modify the contaminant parameters, source data, and receptor data according to your specific scenario i.e in "API_Access.py" input location_ids in line 6 & api_key in line 17. In "OpenWeatherMapAPI.py" input your API key in line 38.
+2. Modify the contaminant parameters, source data, and receptor data according to your specific scenario i.e in "DateTimeMechanism.py" input location_ids in line 7 & OpenAQ API Key in line 10 & "OpenWeatherMapAPI.py" input your API key in line 112.
 
-3. Open the `gpm.py` file in a Python environment (e.g., Jupyter Notebook, Python IDE, or command line).
+3. Open the `gpm.py` file in a Python environment (e.g., Jupyter Notebook, Python IDE, or command line) & run the file.
 
-5. Call the `forward_atmospheric_dispersion` function and provide the wind speed (Uwind) as an argument.
+4. The code will calculate the contaminant concentration contours and display the plot showing the distribution of concentrations at the receptor locations.
 
-6. The code will calculate the contaminant concentration contours and display the plot showing the distribution of concentrations at the receptor locations.
-
-7. If openweathermap API fails, the code assumes a static wind speed and direction, which you can edit in line 71 & 72 of the OpenWeatherMapAPI.py file 
 
 ### Output
 
