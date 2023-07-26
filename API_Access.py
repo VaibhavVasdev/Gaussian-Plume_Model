@@ -4,7 +4,7 @@ from DateTimeMechanism import smallest_date, location_ID, api_key_1
 
 def get_measurement_data():
     # Manually enter the parameters
-    location_ids = location_ID  # Enter as many receptor Ids with "," as a delimiter
+    location_ids = location_ID  
     
     # Set the date_from and date_to variables
     date_to = datetime.fromisoformat(smallest_date)
