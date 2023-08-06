@@ -4,7 +4,7 @@ import dateutil.parser
 from dateutil import tz
 
 # Enter location Ids
-location_ID = ["", ""]
+location_ID = ["",""] #Enter the OpenAQ Location ID's here
 
 # Enter your OpenAQ API key
 api_Key = " "
@@ -137,3 +137,4 @@ if weather_data:
         print("Date: Not available")
 else:
     print("Failed to retrieve weather data. Please check your API key or network connection.")
+
