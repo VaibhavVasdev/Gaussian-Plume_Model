@@ -45,8 +45,7 @@ The `inverse.py` file introduces an inverse modeling approach to estimate emissi
 To use the code for forward atmospheric dispersion modeling:
 
 1. Install the required dependencies using `pip`.
-2. Input the receptor location Ids, OpenAQ API, and OpenWeatherMapAPI in the `DateTimeMechanism.py` file to fit your specific scenario.
-3. Run the `gpm.py` file in a Python environment to calculate the contaminant concentration contours and visualize the results.
+2. Run the `gpm.py` file in a Python environment to calculate the contaminant concentration contours and visualize the results. After the code has been started it will ask for the inputs of receptor location Ids, OpenAQ API, and OpenWeatherMapAPI to fit your specific scenario.
 
 ### Output
 
