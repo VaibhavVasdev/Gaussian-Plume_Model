@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime, timedelta
-from DateTimeMechanism import smallest_date, location_ID, api_key_1
+from DateTimeMechanism import smallest_date, location_ID, api_key
 import numpy as np
 from scipy.optimize import lsq_linear
 from scipy.special import erfc
@@ -19,8 +19,6 @@ def get_measurement_data():
     date_to_str = date_to.isoformat()
     date_from_str = date_from.isoformat()
 
-    # Enter your OpenAQ API key
-    api_key = api_key_1
 
     # Initialize an empty list to store the data
     measurement_data = []
