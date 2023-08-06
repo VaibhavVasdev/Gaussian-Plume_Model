@@ -1,6 +1,6 @@
 import requests
 from API_Access import stored_results
-from DateTimeMechanism import api_key
+from DateTimeMechanism import api_key_weather
 
 def get_city_name(latitude, longitude, api_key_2):
     # API endpoint for reverse geocoding
@@ -36,7 +36,7 @@ def get_weather_data(city_name, api_key_2):
         return None
 
 # Example usage
-api_key_2 =  api_key  # Replace with your OpenWeatherMap API key
+api_key_2 =  api_key_weather  # Replace with your OpenWeatherMap API key
 
 # Iterate over the stored_results and get weather data for each location
 weather_data = []
@@ -77,6 +77,3 @@ if len(wind_data) > 0:
     print(f"Wind Direction: {direction} degrees")
 else:
     print("Failed to retrieve wind data. Please check your API key or network connection.")
-
-
-    
