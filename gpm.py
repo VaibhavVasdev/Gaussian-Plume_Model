@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from API_Access import get_measurement_data
+from API_Access import get_measurement_data, Nd, loc_x, loc_y, loc_z, s_label, source
 from OpenWeatherMapAPI import wind_data
+from inverse import optimal_emission_rates
 
 grav = 9.8
 mu = 1.8e-5
@@ -13,14 +14,12 @@ Wset = 2 * rho * grav * R**2 / (9 * mu)
 dia = 0.162
 A = np.pi * (dia/2)**2
 
-source = {}
-source['n'] = 4
-source['x'] = np.array([285, 310, 900, 1095])
-source['y'] = np.array([80, 205, 290, 190])
-source['z'] = np.array([15, 35, 15, 15])
-source['label'] = [' S1', ' S2', ' S3', ' S4']
-tpy2kgps = 1.0 / 31536
-source['Q'] = np.array([35, 80, 5, 5]) * tpy2kgps
+source['n'] = Nd
+source['x'] = loc_x
+source['y'] = loc_y
+source['z'] = loc_z
+source['label'] = s_label
+source['Q'] = np.array(optimal_emission_rates)/1000
 
 measurement_data = get_measurement_data()
 
@@ -59,6 +58,26 @@ def gplume(x, y, z, H, Q, U):
         C[np.isnan(C) | np.isinf(C)] = 0
     return C
 
+def euclidean_distance(x1, y1, x2, y2):
+    return np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+
+def adjust_dot_positions(x, y, min_distance=30):
+    n = len(x)
+    adjusted_x, adjusted_y = x.copy(), y.copy()
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            dist = euclidean_distance(x[i], y[i], x[j], y[j])
+            if dist < min_distance:
+                avg_x = (x[i] + x[j]) / 2
+                avg_y = (y[i] + y[j]) / 2
+                adjusted_x[i] = avg_x - min_distance / 2
+                adjusted_y[i] = avg_y + min_distance / 2
+                adjusted_x[j] = avg_x + min_distance / 2
+                adjusted_y[j] = avg_y - min_distance / 2
+
+    return adjusted_x, adjusted_y
+
 def forward_atmospheric_dispersion(Uwind):
     nx = 100
     ny = nx
@@ -79,24 +98,37 @@ def forward_atmospheric_dispersion(Uwind):
 
     plt.figure(1)
 
-    # Define a colormap using primary colors (red, green, blue)
-    cmap = plt.cm.get_cmap('tab10')  
+    cmap = plt.cm.get_cmap('tab10')
 
-    # Create colored contour lines
     cs = plt.contour(xmesh, ymesh, glc2, levels=clist, cmap=cmap, extend='both')
-    plt.clabel(cs, inline=True, fontsize=8, colors='k')  # Add labels to colored contour lines
+    plt.clabel(cs, inline=True, fontsize=8, colors='k')
 
+    plt.scatter(source['x'], source['y'], marker='*', c='red', s=100, label='Sources')
+
+    for i in range(source['n']):
+        plt.text(source['x'][i], source['y'][i], source['label'][i], fontsize=10,
+                 fontweight='bold', color='red', va='bottom', ha='right')
+
+    adjusted_x, adjusted_y = adjust_dot_positions(recept['x'], recept['y'])
+    plt.scatter(adjusted_x, adjusted_y, c='blue', edgecolors='black', s=50, picker=5)
+
+    def onpick(event):
+        ind = event.ind
+        if len(ind) > 0:
+            x = adjusted_x[ind[0]]
+            y = adjusted_y[ind[0]]
+            label = recept['label'][ind[0]]
+            plt.gca().text(x, y, label, fontsize=10, fontweight='bold', color='red')
+            plt.draw()
+
+    plt.gcf().canvas.mpl_connect('pick_event', onpick)
     plt.xlim(xlim)
     plt.ylim(ylim)
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
     plt.title(f'PM2.5 concentration (μg/m^3), max = {np.max(glc2):.2f}')
-
-    plt.plot(recept['x'], recept['y'], 'bo', markeredgecolor='k', markerfacecolor='b')
-    for i, label in enumerate(recept['label']):
-        plt.text(recept['x'][i], recept['y'][i], label, fontsize=smallfont, fontweight='bold')
-
     plt.grid(True)
+    plt.legend()
     plt.show()
 
 if len(wind_data) > 0:
@@ -106,4 +138,3 @@ if len(wind_data) > 0:
         forward_atmospheric_dispersion(Uwind=speed)
 else:
     print("Failed to retrieve wind data. Please check your API key or network connection.")
-    

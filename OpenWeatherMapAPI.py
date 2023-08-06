@@ -77,3 +77,6 @@ if len(wind_data) > 0:
     print(f"Wind Direction: {direction} degrees")
 else:
     print("Failed to retrieve wind data. Please check your API key or network connection.")
+
+
+    
