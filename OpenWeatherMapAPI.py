@@ -1,6 +1,6 @@
 import requests
-from API_Access import stored_results
-from DateTimeMechanism import api_key_weather
+from .API_Access import stored_results
+from .DateTimeMechanism import api_key_weather
 
 def get_city_name(latitude, longitude, api_key_2):
     # API endpoint for reverse geocoding

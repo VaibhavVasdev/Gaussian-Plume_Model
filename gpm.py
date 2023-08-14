@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from API_Access import get_measurement_data, Nd, loc_x, loc_y, loc_z, s_label, source
-from OpenWeatherMapAPI import wind_data
-from inverse import optimal_emission_rates
+from .API_Access import get_measurement_data, Nd, loc_x, loc_y, loc_z, s_label, source
+from .OpenWeatherMapAPI import wind_data
+from .inverse import optimal_emission_rates
 
 grav = 9.8
 mu = 1.8e-5

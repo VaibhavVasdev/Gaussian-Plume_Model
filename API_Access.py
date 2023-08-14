@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime, timedelta
-from DateTimeMechanism import smallest_date, location_ID, api_key
+from .DateTimeMechanism import smallest_date, location_ID, api_key
 import numpy as np
 from scipy.optimize import lsq_linear
 from scipy.special import erfc

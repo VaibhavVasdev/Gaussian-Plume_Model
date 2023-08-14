@@ -1,8 +1,8 @@
 import numpy as np
 from scipy.optimize import minimize
 from scipy.special import erfc
-from DateTimeMechanism import location_ID
-from API_Access import Nq, Nd, recept_z, recept_y, recept_x, last_values_array
+from .DateTimeMechanism import location_ID
+from .API_Access import Nq, Nd, recept_z, recept_y, recept_x, last_values_array
 
 def ermak(x, y, z, H, U, Wset, Wdep):
     Umin = 0.0
