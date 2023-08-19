@@ -34,6 +34,115 @@ For forward modeling, the code generates plots showing the contours of ground-le
 
 For inverse modeling, the code outputs the optimal emission rates that best fit the observed receptor measurements. (Use "from gplume import inverse")
 
+## Code Functioning
+
+  +----------------------------------+
+  |           Main Menu              |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  |      Forward Modeling            |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  |         Set Parameters            |
+  | - Gravitational acceleration      |
+  | - Dynamic viscosity of air        |
+  | - Density of the contaminant      |
+  | - Particle diameter               |
+  | - Deposition velocity             |
+  | - Molar mass of the contaminant   |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  |   Define Source and Receptor Data |
+  | - Number of sources               |
+  | - Source coordinates and labels   |
+  | - Emission rates for each source  |
+  | - Number of receptors             |
+  | - Receptor coordinates and labels |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  |        Input Wind Speed           |
+  +----------------------------------+
+               |
+               v
+  +--------------------------------------------------------+
+  |   Date-Time Mechanism                                   |
+  | - Scrape the Date-Time from OpenAQ PM2.5 Data           |
+  | - Scrape the Date-Time from OpenWeather wind data       |
+  | - Compare both the Date-Time                            |
+  | - Select the smallest Date-Time                         |
+  | - Extract Wind and PM2.5 Data for the samllest Date-Time|
+  +--------------------------------------------------------+
+               |
+               v
+  +------------------------------------+
+  |          gplume Function            |
+  | - Calculate contaminant             |
+  |   concentration at receptors        |
+  | - Incorporate source characteristics|
+  | - Use wind speed as input           |
+  +------------------------------------+
+               |
+               v
+  +----------------------------------+
+  |    Plot Concentration Contours    |
+  | - Use matplotlib                  |
+  | - Display contours and max        |
+  |   concentration in plot title     |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  |       Inverse Modeling            |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  |     Input Observed Concentrations |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  |         ermak Function            |
+  | - Calculate predicted             |
+  |   concentrations using Ermak model|
+  | - Consider emission rates, wind   |
+  |   speed, and other parameters     |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  |      Define Objective Function    |
+  | - Measure difference between      |
+  |   predicted and observed concs    |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  |    Utilize scipy.optimize's       |
+  |          minimize Function        |
+  | - Find optimal emission rates     |
+  |   to minimize difference          |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  | Output Optimal Emission Rates     |
+  +----------------------------------+
+               |
+               v
+  +----------------------------------+
+  |               End                |
+  +----------------------------------+
+
+
 ### Contributing
 
 Contributions to this project are welcome. If you find any issues or have suggestions for improvements, feel free to create a pull request or submit an issue on the GitHub repository.
