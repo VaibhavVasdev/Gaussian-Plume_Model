@@ -56,8 +56,6 @@ def gplume(x, y, z, H, Q, U):
     by = 0.82
     az = 0.275
     bz = 0.82
-
-    # Calculate sigma values for the Gaussian plume model
     sigmay = ay * np.abs(x)**by * (x > 0)
     sigmaz = az * np.abs(x)**bz * (x > 0)
 
