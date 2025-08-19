@@ -43,7 +43,7 @@ python3 -c "from gplume import gpm"
 
 ```python
 # Compute and plot inverse modeling
-python3 -c "from gplume import inverse:
+python3 -c "from gplume import inverse"
 ```
 
 ## Contributing
