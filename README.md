@@ -34,16 +34,16 @@ Install and update from PyPI using an installer such as pip:
 $ pip install -U gplume
 ```
 
-## A Simple Example
+## A Simple Example: Input these commands in the Terminal
 
 ```python
 # Compute and plot forward modeling
-from gplume import gpm
+python3 -c "from gplume import gpm"
 ```
 
 ```python
 # Compute and plot inverse modeling
-from gplume import inverse
+python3 -c "from gplume import inverse:
 ```
 
 ## Contributing
